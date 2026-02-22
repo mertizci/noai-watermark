@@ -25,8 +25,8 @@ The controllable regeneration approach is based on [Liu et al. (arXiv:2410.05470
 ## Table of Contents
 
 1. [Example](#example)
-2. [Ethics and Responsible Use](#ethics-and-responsible-use)
-3. [Quick Start](#quick-start)
+2. [Quick Start](#quick-start)
+3. [Online Demo](#online-demo)
 4. [Installation](#installation)
 5. [Pipeline Profiles](#pipeline-profiles)
 6. [CLI Reference](#cli-reference)
@@ -37,7 +37,8 @@ The controllable regeneration approach is based on [Liu et al. (arXiv:2410.05470
 11. [Troubleshooting](#troubleshooting)
 12. [Project Structure](#project-structure)
 13. [Testing](#testing)
-14. [Acknowledgements](#acknowledgements)
+14. [Ethics and Responsible Use](#ethics-and-responsible-use)
+15. [Acknowledgements](#acknowledgements)
 
 ---
 
@@ -66,28 +67,6 @@ noai-watermark source.png --strength 0.04 --steps 50 -o cleaned.png
 
 ---
 
-## Ethics and Responsible Use
-
-### Why this tool exists
-
-Invisible watermarks like SynthID, StableSignature, and TreeRing are being positioned as the backbone of AI content detection. Companies and platforms present them as robust, reliable proof of AI origin. But how robust are they really?
-
-A single img2img pass at low strength is enough to fool SynthID in most cases. If these systems are supposed to underpin trust and content authenticity on the internet, the public needs to know how fragile they actually are — not just researchers behind closed doors.
-
-This project exists to make that fragility visible. If watermark-based detection can be defeated by a few lines of open-source code, it shouldn't be sold as bulletproof. Public scrutiny is how we get to better, more honest solutions.
-
-### Intended use
-
-- **Security research** — stress-testing watermark robustness, measuring false positive/negative rates
-- **Defensive analysis** — validating whether your provenance pipeline actually holds up
-- **Interoperability testing** — evaluating how watermarks behave across formats, edits, and re-encoding
-
-### What not to do
-
-Don't use this to strip attribution from content that isn't yours. Don't use it to bypass platform policies or misrepresent authorship. Keep original files when running experiments. Comply with applicable laws and terms of service.
-
----
-
 ## Quick Start
 
 ```bash
@@ -99,6 +78,16 @@ noai-watermark source.png -o cleaned.png
 # CtrlRegen pipeline (best quality)
 noai-watermark source.png --model-profile ctrlregen -o cleaned.png
 ```
+
+---
+
+## Online Demo
+
+Try it in the browser on Hugging Face Spaces:
+
+- https://huggingface.co/spaces/mertizci/noai-watermark
+
+> **Note:** The demo currently runs on CPU, so processing may be slow. It is intended for online testing.
 
 ---
 
@@ -478,6 +467,28 @@ pip install -e ".[dev]"
 pytest
 pytest --cov=src --cov-report=html
 ```
+
+---
+
+## Ethics and Responsible Use
+
+### Why this tool exists
+
+Invisible watermarks like SynthID, StableSignature, and TreeRing are being positioned as the backbone of AI content detection. Companies and platforms present them as robust, reliable proof of AI origin. But how robust are they really?
+
+A single img2img pass at low strength is enough to fool SynthID in most cases. If these systems are supposed to underpin trust and content authenticity on the internet, the public needs to know how fragile they actually are — not just researchers behind closed doors.
+
+This project exists to make that fragility visible. If watermark-based detection can be defeated by a few lines of open-source code, it shouldn't be sold as bulletproof. Public scrutiny is how we get to better, more honest solutions.
+
+### Intended use
+
+- **Security research** — stress-testing watermark robustness, measuring false positive/negative rates
+- **Defensive analysis** — validating whether your provenance pipeline actually holds up
+- **Interoperability testing** — evaluating how watermarks behave across formats, edits, and re-encoding
+
+### What not to do
+
+Don't use this to strip attribution from content that isn't yours. Don't use it to bypass platform policies or misrepresent authorship. Keep original files when running experiments. Comply with applicable laws and terms of service.
 
 ---
 
