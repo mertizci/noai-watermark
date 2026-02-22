@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import logging
 import os
+import sys
 import time
 from typing import Any, Callable
 
@@ -98,16 +99,25 @@ class CtrlRegenEngine:
         if not is_ctrlregen_available():
             missing: list[str] = []
             if not _HAS_DIFFUSERS:
-                missing.append("diffusers")
+                missing.extend(["diffusers", "transformers", "accelerate"])
             if not _HAS_CONTROLNET_AUX:
                 missing.append("controlnet-aux")
             if not _HAS_COLOR_MATCHER:
                 missing.append("color-matcher")
-            raise ImportError(
-                "CtrlRegen requires additional dependencies: "
-                + ", ".join(missing)
-                + ". Install with: pip install noai-watermark"
-            )
+            logger.info("Auto-installing missing dependencies: %s", missing)
+            import subprocess
+            try:
+                subprocess.check_call(
+                    [sys.executable, "-m", "pip", "install", *missing],
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.DEVNULL,
+                )
+            except (subprocess.CalledProcessError, FileNotFoundError):
+                raise ImportError(
+                    "Failed to auto-install missing dependencies: "
+                    + ", ".join(missing)
+                    + ". Try manually: pip install --force-reinstall noai-watermark"
+                )
 
         self.base_model_id = base_model_id or DEFAULT_BASE_MODEL
         self.device = device

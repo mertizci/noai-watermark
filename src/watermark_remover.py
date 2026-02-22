@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import logging
 import os
+import sys
 import time
 from pathlib import Path
 from typing import Any, Callable
@@ -57,6 +58,20 @@ def is_watermark_removal_available() -> bool:
     return _HAS_TORCH and _HAS_DIFFUSERS
 
 
+def _auto_install(packages: list[str]) -> bool:
+    """Attempt to install missing packages via pip. Returns True on success."""
+    import subprocess
+    try:
+        subprocess.check_call(
+            [sys.executable, "-m", "pip", "install", *packages],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
+        return True
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        return False
+
+
 def get_device() -> str:
     """Get the best available device for inference."""
     if not _HAS_TORCH:
@@ -98,10 +113,25 @@ class WatermarkRemover:
         self.model_profile = detect_model_profile(self.model_id)
 
         if not is_watermark_removal_available():
-            raise ImportError(
-                "Watermark removal requires additional dependencies. "
-                "Install them with: pip install torch diffusers transformers"
-            )
+            missing_pkgs = []
+            if not _HAS_TORCH:
+                missing_pkgs.append("torch")
+            if not _HAS_DIFFUSERS:
+                missing_pkgs.extend(["diffusers", "transformers", "accelerate"])
+            logger.info("Auto-installing missing dependencies: %s", missing_pkgs)
+            if not _auto_install(missing_pkgs):
+                raise ImportError(
+                    f"Failed to auto-install missing dependencies: {', '.join(missing_pkgs)}. "
+                    "Try manually: pip install --force-reinstall noai-watermark"
+                )
+            import importlib
+            global _HAS_TORCH, _HAS_DIFFUSERS, torch, StableDiffusionImg2ImgPipeline
+            import torch as _torch
+            torch = _torch
+            _HAS_TORCH = True
+            from diffusers import StableDiffusionImg2ImgPipeline as _pipe
+            StableDiffusionImg2ImgPipeline = _pipe
+            _HAS_DIFFUSERS = True
         self.device = (device or get_device()).lower()
         if self.device == "auto":
             self.device = get_device()
@@ -142,10 +172,13 @@ class WatermarkRemover:
         from ctrlregen import CtrlRegenEngine, is_ctrlregen_available
 
         if not is_ctrlregen_available():
-            raise ImportError(
-                "CtrlRegen requires additional dependencies. "
-                "Install with: pip install noai-watermark"
-            )
+            missing_pkgs = ["controlnet-aux", "color-matcher", "safetensors"]
+            logger.info("Auto-installing missing CtrlRegen dependencies: %s", missing_pkgs)
+            if not _auto_install(missing_pkgs):
+                raise ImportError(
+                    f"Failed to auto-install missing dependencies: {', '.join(missing_pkgs)}. "
+                    "Try manually: pip install --force-reinstall noai-watermark"
+                )
         if self._ctrlregen_engine is None:
             self._ctrlregen_engine = self._make_ctrlregen_engine()
         self._ctrlregen_engine.load()
@@ -362,10 +395,13 @@ class WatermarkRemover:
         from progress import is_mps_error
 
         if not is_ctrlregen_available():
-            raise ImportError(
-                "CtrlRegen requires additional dependencies. "
-                "Install with: pip install noai-watermark"
-            )
+            missing_pkgs = ["controlnet-aux", "color-matcher", "safetensors"]
+            logger.info("Auto-installing missing CtrlRegen dependencies: %s", missing_pkgs)
+            if not _auto_install(missing_pkgs):
+                raise ImportError(
+                    f"Failed to auto-install missing dependencies: {', '.join(missing_pkgs)}. "
+                    "Try manually: pip install --force-reinstall noai-watermark"
+                )
 
         if self._ctrlregen_engine is None:
             self._ctrlregen_engine = self._make_ctrlregen_engine()
