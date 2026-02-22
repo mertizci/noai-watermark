@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import subprocess
 from pathlib import Path
 from unittest.mock import MagicMock, patch, PropertyMock
 
@@ -66,10 +67,11 @@ class TestCtrlRegenEngineInit:
     @patch("ctrlregen.engine._HAS_DIFFUSERS", False)
     @patch("ctrlregen.engine._HAS_CONTROLNET_AUX", True)
     @patch("ctrlregen.engine._HAS_COLOR_MATCHER", True)
-    def test_init_raises_when_deps_missing(self) -> None:
+    @patch("subprocess.check_call", side_effect=subprocess.CalledProcessError(1, "pip"))
+    def test_init_raises_when_deps_missing(self, _mock_pip: MagicMock) -> None:
         from ctrlregen.engine import CtrlRegenEngine
 
-        with pytest.raises(ImportError, match="CtrlRegen requires"):
+        with pytest.raises(ImportError, match="Failed to auto-install"):
             CtrlRegenEngine(device="cpu")
 
     @patch("ctrlregen.engine._HAS_DIFFUSERS", True)

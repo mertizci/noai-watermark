@@ -38,18 +38,20 @@ class TestWatermarkRemoverAvailability:
 class TestWatermarkRemoverInit:
     """Test WatermarkRemover initialization."""
 
+    @patch("watermark_remover._auto_install", return_value=False)
     @patch("watermark_remover._HAS_TORCH", False)
-    def test_init_without_torch_raises_error(self) -> None:
+    def test_init_without_torch_raises_error(self, _mock_install: MagicMock) -> None:
         """Test that initialization fails without torch."""
-        with pytest.raises(ImportError, match="requires additional dependencies"):
+        with pytest.raises(ImportError, match="Failed to auto-install"):
             from watermark_remover import WatermarkRemover
 
             WatermarkRemover()
 
+    @patch("watermark_remover._auto_install", return_value=False)
     @patch("watermark_remover._HAS_DIFFUSERS", False)
-    def test_init_without_diffusers_raises_error(self) -> None:
+    def test_init_without_diffusers_raises_error(self, _mock_install: MagicMock) -> None:
         """Test that initialization fails without diffusers."""
-        with pytest.raises(ImportError, match="requires additional dependencies"):
+        with pytest.raises(ImportError, match="Failed to auto-install"):
             from watermark_remover import WatermarkRemover
 
             WatermarkRemover()
