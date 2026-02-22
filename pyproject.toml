@@ -1,6 +1,6 @@
 [project]
 name = "noai-watermark"
-version = "0.1.16"
+version = "0.1.17"
 description = "AI Metadata Toolkit for cloning, checking, cleaning, and watermark removal"
 readme = "README.md"
 requires-python = ">=3.10"
