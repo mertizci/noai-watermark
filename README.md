@@ -165,7 +165,9 @@ pip install -e ".[dev,watermark,ctrlregen]"
 | **GPU** | Optional | Optional (recommended) |
 | **OS** | macOS, Linux, Windows | macOS, Linux, Windows |
 
-No GPU required — CPU is the default. If you have an NVIDIA GPU (4+ GB VRAM) or Apple Silicon (M1/M2/M3/M4), it will be used automatically. You can force CPU with `--device cpu`.
+No GPU required. The device is selected automatically: **CUDA** (NVIDIA GPU) > **MPS** (Apple Silicon) > **CPU**. If you have a compatible GPU it will be used by default. You can override with `--device cpu`, `--device cuda`, or `--device mps`.
+
+> **Note:** MPS (Apple Silicon) can sometimes be slower than CPU for this workload. If you experience slow performance on Mac, try `--device cpu`.
 
 ---
 
@@ -217,7 +219,7 @@ All commands use `noai-watermark` (alias: `photo-metadata`). Add `-v` to any com
 # Basic removal
 noai-watermark source.png --remove-watermark -o cleaned.png
 
-# Force CPU inference (recommended on Mac)
+# Force CPU inference
 noai-watermark source.png --remove-watermark --device cpu -o cleaned.png
 
 # Custom strength and steps
