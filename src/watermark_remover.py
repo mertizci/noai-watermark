@@ -72,6 +72,28 @@ def _auto_install(packages: list[str]) -> bool:
         return False
 
 
+def _ensure_watermark_deps() -> None:
+    """Auto-install and re-import missing watermark removal dependencies."""
+    global _HAS_TORCH, _HAS_DIFFUSERS, torch, StableDiffusionImg2ImgPipeline
+    missing_pkgs: list[str] = []
+    if not _HAS_TORCH:
+        missing_pkgs.append("torch")
+    if not _HAS_DIFFUSERS:
+        missing_pkgs.extend(["diffusers", "transformers", "accelerate"])
+    logger.info("Auto-installing missing dependencies: %s", missing_pkgs)
+    if not _auto_install(missing_pkgs):
+        raise ImportError(
+            f"Failed to auto-install missing dependencies: {', '.join(missing_pkgs)}. "
+            "Try manually: pip install --force-reinstall noai-watermark"
+        )
+    import torch as _torch
+    torch = _torch
+    _HAS_TORCH = True
+    from diffusers import StableDiffusionImg2ImgPipeline as _pipe
+    StableDiffusionImg2ImgPipeline = _pipe
+    _HAS_DIFFUSERS = True
+
+
 def get_device() -> str:
     """Get the best available device for inference."""
     if not _HAS_TORCH:
@@ -113,25 +135,7 @@ class WatermarkRemover:
         self.model_profile = detect_model_profile(self.model_id)
 
         if not is_watermark_removal_available():
-            missing_pkgs = []
-            if not _HAS_TORCH:
-                missing_pkgs.append("torch")
-            if not _HAS_DIFFUSERS:
-                missing_pkgs.extend(["diffusers", "transformers", "accelerate"])
-            logger.info("Auto-installing missing dependencies: %s", missing_pkgs)
-            if not _auto_install(missing_pkgs):
-                raise ImportError(
-                    f"Failed to auto-install missing dependencies: {', '.join(missing_pkgs)}. "
-                    "Try manually: pip install --force-reinstall noai-watermark"
-                )
-            import importlib
-            global _HAS_TORCH, _HAS_DIFFUSERS, torch, StableDiffusionImg2ImgPipeline
-            import torch as _torch
-            torch = _torch
-            _HAS_TORCH = True
-            from diffusers import StableDiffusionImg2ImgPipeline as _pipe
-            StableDiffusionImg2ImgPipeline = _pipe
-            _HAS_DIFFUSERS = True
+            _ensure_watermark_deps()
         self.device = (device or get_device()).lower()
         if self.device == "auto":
             self.device = get_device()

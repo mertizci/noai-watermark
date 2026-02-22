@@ -100,8 +100,6 @@ noai-watermark source.png -o cleaned.png
 noai-watermark source.png --model-profile ctrlregen -o cleaned.png
 ```
 
-> Only need one pipeline? Use `pip install "noai-watermark[default]"` or `pip install "noai-watermark[ctrlregen]"` instead.
-
 ---
 
 ## Installation
@@ -113,21 +111,6 @@ pip install noai-watermark
 ```
 
 Both watermark removal pipelines (default img2img + CtrlRegen) are included out of the box.
-
-<details>
-<summary>Install only one pipeline</summary>
-
-If you want a lighter install with only one pipeline:
-
-```bash
-# Default pipeline only (img2img — smaller download)
-pip install "noai-watermark[default]"
-
-# CtrlRegen pipeline only (best quality)
-pip install "noai-watermark[ctrlregen]"
-```
-
-</details>
 
 > **macOS (Homebrew Python):** If you get `externally-managed-environment` error, use `pipx` or a virtual environment:
 >
@@ -187,7 +170,7 @@ Two regeneration pipelines are available. Both use diffusion-based reconstructio
 | **Quality** | Good — may drift on fine details at high strength | Best — preserves structure and color more faithfully |
 | **Resolution** | Any size (processed at original resolution) | Any size (tile-based processing, see below) |
 | **Speed** | Faster | Slower (multiple models in the pipeline) |
-| **Install** | Included by default (or `[default]` alone) | Included by default (or `[ctrlregen]` alone) |
+| **Install** | Included | Included |
 
 > **Recommendation:** Both pipelines are installed with `pip install noai-watermark`. Start with `default` for quick iteration. Switch to `ctrlregen` when output quality is the priority.
 
