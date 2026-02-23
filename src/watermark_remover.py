@@ -159,10 +159,7 @@ def _reinstall_torch_cuda_and_restart() -> None:
         return
 
     os.environ[_CUDA_FIX_ENV_KEY] = "1"
-    import shutil
-    argv0 = sys.argv[0]
-    resolved = shutil.which(argv0) or argv0
-    os.execv(resolved, sys.argv)
+    os.execvp(sys.argv[0], sys.argv)
 
 
 def _ensure_watermark_deps() -> None:
