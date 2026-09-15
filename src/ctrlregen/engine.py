@@ -266,7 +266,9 @@ class CtrlRegenEngine:
                 canny_high=CANNY_HIGH_THRESHOLD,
                 device=self.device,
                 set_progress=self._set_progress,
-                ip_adapter_image=orig_image,
+                # A full-image reference can repeat the subject in background tiles.
+                # Let run_tiled use the current tile as its semantic reference.
+                ip_adapter_image=None,
             )
         else:
             from ctrlregen.tiling import resize_center_crop
