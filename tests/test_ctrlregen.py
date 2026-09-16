@@ -335,7 +335,10 @@ class TestEngineConstants:
         assert CANNY_HIGH_THRESHOLD == 150
 
 
-@pytest.mark.parametrize("dimensions", [(1024, 768), (768, 1024)])
+@pytest.mark.parametrize(
+    "dimensions",
+    [(1024, 768), (768, 1024), (720, 480), (480, 720), (513, 512), (512, 513), (1001, 769)],
+)
 def test_engine_uses_local_semantic_reference_for_each_tile(monkeypatch, dimensions):
     """Exercise engine -> tiling so a whole-portrait reference cannot regress."""
     from ctrlregen.engine import CtrlRegenEngine
@@ -344,7 +347,10 @@ def test_engine_uses_local_semantic_reference_for_each_tile(monkeypatch, dimensi
     references = []
 
     class RecordingPipeline:
+        """Record semantic guidance while returning each unmodified tile."""
+
         def __call__(self, **kwargs):
+            """Assert that spatial input and semantic reference share the same crop."""
             tile = kwargs["image"][0]
             reference = kwargs["ip_adapter_image"][0]
             references.append(reference)
@@ -361,5 +367,8 @@ def test_engine_uses_local_semantic_reference_for_each_tile(monkeypatch, dimensi
     source = Image.new("RGB", dimensions, (90, 100, 110))
     result = engine.run(source, strength=0.25, num_inference_steps=4, seed=7)
     assert result.size == dimensions
-    assert len(references) > 1
+    if max(dimensions) > 519:
+        assert len(references) > 1
+    else:
+        assert len(references) == 1  # Alignment rounds the 513px edge down to 512.
     assert all(reference is not source for reference in references)

@@ -231,7 +231,9 @@ class CtrlRegenEngine:
         """Run CtrlRegen watermark removal on a single image.
 
         Images that fit within ``TILE_SIZE`` (512) are processed as a
-        single pass.  Larger images are split into overlapping tiles.
+        single pass.  Larger images are split into overlapping tiles, each
+        using its own pixels as the semantic reference to avoid repeating
+        subjects from unrelated regions of the full image.
         """
         self.load()
         assert self._pipeline is not None
