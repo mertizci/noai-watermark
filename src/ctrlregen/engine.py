@@ -231,7 +231,9 @@ class CtrlRegenEngine:
         """Run CtrlRegen watermark removal on a single image.
 
         Images that fit within ``TILE_SIZE`` (512) are processed as a
-        single pass.  Larger images are split into overlapping tiles.
+        single pass.  Larger images are split into overlapping tiles, each
+        using its own pixels as the semantic reference to avoid repeating
+        subjects from unrelated regions of the full image.
         """
         self.load()
         assert self._pipeline is not None
@@ -266,7 +268,9 @@ class CtrlRegenEngine:
                 canny_high=CANNY_HIGH_THRESHOLD,
                 device=self.device,
                 set_progress=self._set_progress,
-                ip_adapter_image=orig_image,
+                # A full-image reference can repeat the subject in background tiles.
+                # Let run_tiled use the current tile as its semantic reference.
+                ip_adapter_image=None,
             )
         else:
             from ctrlregen.tiling import resize_center_crop
